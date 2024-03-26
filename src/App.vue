@@ -47,9 +47,77 @@ layui.use(function(){
         }
       });
     },
-    
+    // look look 
+    'looklook':function(){
+      layer.tips('却也想带你看看这精彩的世界', this, {
+        tips: 1,
+        time: 3000
+      });
+      var index = layer.load(0, {shade: 0.3});
+      setTimeout(function(){
+        layer.close(index); // 关闭 loading
+        // 获取 main 元素
+        let app = document.querySelector('#app')
+        app.scrollBy({
+          top: app.clientHeight - 50,
+          behavior: "smooth",
+        });
+      }, 3000);
+    },
+    // back to top
+    'back-to-top':function(e){
+      let app = document.querySelector('#app')
+      let backToTopElement = e[0]
+      // 根据 图标 类名 判断当前滚动条 是往上滚 还是下滚
+      if(backToTopElement.classList.contains('down')){
+        if(backToTopElement.classList.contains('disabled')){
+          layer.tips('已经到底了', this, {
+            tips: 1,
+            time: 1500
+          });
+        }else{
+          app.scrollBy({
+            top: app.clientHeight - 50,
+            behavior: 'smooth'
+          })
+        }
+      }else{
+        if(backToTopElement.classList.contains('disabled')){
+          layer.tips('可以试试另一个', this, {
+            tips: 1,
+            time: 1500
+          });
+        }else{
+          app.scrollBy({
+            top: (0 - app.clientHeight + 50),
+            behavior: 'smooth'
+          })
+        }
+      }
+    }
   });
 });
+let app = document.querySelector("#app")
+app.onscroll = ()=>{
+  let scrollTop = app.scrollTop
+  let clientHeight = app.clientHeight
+  let scrollHeight = app.scrollHeight
+  let backToTop = document.querySelector("#backToTop")
+  let topClassList = backToTop.children[0].classList
+  let downClassList = backToTop.children[1].classList
+  // 如果 到底部或位于顶部，给图标 添加 disabled 类名
+  if(scrollTop + clientHeight == scrollHeight){
+    downClassList.add('disabled')
+  }else if(scrollTop == 0){
+    topClassList.add('disabled')
+  }else{
+    if(topClassList.contains('disabled')){
+      topClassList.remove('disabled')
+    }else if(downClassList.contains('disabled')){
+      downClassList.remove('disabled')
+    }
+  }
+}
 </script>
 
 <template>
@@ -112,12 +180,25 @@ layui.use(function(){
       </div>
     </div>
   </nav>
-  <main style="height: calc(100vh);">
-    
+  <main class="d-flex flex-column align-items-center">
+    <!-- 介绍 部分 -->
+    <section style="height: calc(100vh - 50px);" class="d-flex flex-column flex-md-row justify-content-center align-items-center">
+      <img class="heroImg" src="/src/assets/logo.png" alt="" style="width: 200px;">
+      <div class="d-flex flex-column align-items-center">
+        <h1 class="mb-1">Hello World</h1>
+        <span class="mb-3">一个不太合格的程序猿</span>
+        <span lay-on="looklook" class="btn btn-primary">Go 去看看</span>
+      </div>
+    </section>
   </main>
-  <footer style="height: 60px;" class="bg-danger">
-
+  <footer style="height: 60px;" class="d-flex align-items-center justify-content-center">
+    MIT Licensed, Copyright © 2024 MiXiaoMao | <a href="https://beian.miit.gov.cn/" target="_blank">湘ICP备2024041531号-1</a>
   </footer>
+  <!-- 回到 顶部 -->
+  <div id="backToTop" class="d-block position-absolute">
+    <i lay-on="back-to-top" class="layui-icon layui-icon-triangle-d top disabled"></i>
+    <i lay-on="back-to-top" class="layui-icon layui-icon-triangle-d down"></i>
+  </div>
 </template>
 
 <style lang="less" scoped>
@@ -152,6 +233,60 @@ header{
   }
   .menu-item:active{
     opacity: 1;
+  }
+}
+main>{
+  .heroImg{
+    animation: heroAnimation 5s linear 5s infinite alternate;
+  }
+  @keyframes heroAnimation {
+    0%{
+      transform: scale(1) rotate(0deg);
+    }
+    20%{
+      transform: scale(0) rotate(0deg);
+    }
+    40%{
+      transform: scale(1) rotate(360deg);
+    }
+    70%{
+      transform: rotate(35deg);
+    }
+    90%{
+      transform: rotate(0deg);
+    }
+    to{
+      transform: rotate(5deg);
+    }
+  }
+}
+
+
+// 返回 顶部
+#backToTop>{
+  right: 20px;
+  bottom: 20px;
+  i{
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    display: block;
+    background: linear-gradient(175deg, #0a0a0a, #16b777, #f8f8f8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  i:hover{
+    opacity: 0.8;
+  }
+  i.disabled{
+    opacity: 0.5;
+  }
+  i.top{
+    transform: rotate(180deg);
   }
 }
 </style>
